@@ -1,0 +1,5 @@
+Vstupní hex soubor je nutné vytvořit jako záchyt v programu Termite
+https://www.compuphase.com/software_termite.htm
+
+S doplňkem Logfile:
+https://www.compuphase.com/software/termite_filter_logfile.zip
