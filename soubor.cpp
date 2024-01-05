@@ -12,20 +12,13 @@ Soubor::Soubor(QObject *parent) : QObject(parent)
 
 
 
-void Soubor::otevriSoubor()
+QByteArray Soubor::otevriSoubor()
 {
+    QByteArray vysledek="";
     qDebug()<<"Soubor::otevriSoubor()";
     QDomDocument doc("mydocument");
-    // QFile file("xml_zdroje/XML_Zlicin_20200702_20200705.xml");
-
-    // QFile file(cesta+"/konfigurace/konfigurace.xml");
-    //QString cesta;
-
     qDebug()<<"cesta k souboru je "<<cestaSouboruHex;
     QFile file(cestaSouboruHex);
-
-
-
 
     if (!file.open(QIODevice::ReadOnly))
     {
@@ -33,18 +26,10 @@ void Soubor::otevriSoubor()
         QString neotevruSoubor="soubor se nepovedlo otevrit";
         qDebug()<<neotevruSoubor;
         emit odesliChybovouHlasku(neotevruSoubor);
-        return;
+        return vysledek;
     }
-    /*
-    if (!doc.setContent(&file))
-    {
-      //   emit odesliChybovouHlasku("soubor se nepovedlo otevrit2");
-        qDebug()<<"nepovedlo se nastavit obsah dom dokumentu";
-        file.close();
-        return;
-    }
-    */
-    QByteArray vysledek;
+
+
     vysledek=file.readAll();
     file.close();
 
@@ -52,15 +37,12 @@ void Soubor::otevriSoubor()
     qDebug()<<"uspech";
     QDomElement koren=doc.firstChildElement();
 
-    qDebug()<<vysledek;
+    //qDebug()<<vysledek;
 
-
-    this->vypis(vysledek);
+    return vysledek;
+    //this->vypis(vysledek);
 
     // najdiCestaHlaseni(doc);
-
-
-
 
 }
 
@@ -76,7 +58,6 @@ void Soubor::vypis(QByteArray vstup)
     QString radekHex="";
     for (int i=0; i<(delka);i++)
     {
-
         radek+=zavorky(vstup.at(i));
         radekHex+=" ";
         radekHex+=this->formatHex(this->hexDoplnNulu(vstup.at(i)));
@@ -99,10 +80,118 @@ void Soubor::vypis(QByteArray vstup)
     }
     qDebug()<<"konec";
 
+    QString htmlSoubor="";
+    QString htmlRadky="";
+    for (int g=0;g<radkyHex.length();g++)
+    {
+        htmlRadky+=tabulkaRadek(tabulkaBunka(radky.at(g))+tabulkaBunka(radkyHex.at(g)));
+        qDebug()<<radky.at(g)<<" "<<radkyHex.at(g);
+    }
+
+    htmlSoubor=this->wrapper(htmlRadky);
+    zapisHtml(htmlSoubor);
+    qDebug()<<htmlSoubor;
+
+}
+
+
+void Soubor::zpracujRs485(QByteArray vstup)
+{
+    qDebug()<<"Soubor::zpracujRs485";
+    int delka=vstup.length();
+    qDebug()<<"delka velikost souboru je "<<delka;
+
+    QVector<QString> radky;
+    QVector<QString> radkyHex;
+    QString radek="";
+    QString radekHex="";
+
+    int delkaDatRadku=0;
+    int indexZnakuRadku=0;
+    short adresa=0;
+    /*
+    for (short i=0;i<255 ;i++ )
+    {
+        char rrrr=i;
+        QString retezec="";
+        retezec=retezec+rrrr;
+        qDebug()<<"i="<<i<<" retezec:"<<retezec<<" char:"<<rrrr<<" QString number HEX:"<<QString::number( vratCislo( rrrr),16);
+    }
+    */
+
+    for (int i=0; i<(delka);i++)
+    {
+
+        switch(indexZnakuRadku)
+        {
+        case 0:
+        {
+            adresa=vratCislo( vstup.at(i));
+            qDebug()<<"adresa panelu je "<<QString::number( adresa,16);
+
+
+            radek+=zavorky(vstup.at(i));
+            radekHex+=" ";
+            radekHex+=this->formatHex(this->hexDoplnNulu(vstup.at(i)));
+            indexZnakuRadku++;
+            break;
+        }
+        case 1:
+        {
+            if(adresa==3)
+            {
+                delkaDatRadku=3;
+            }
+            else
+            {
+                delkaDatRadku=vratCislo( vstup.at(i));
+            }
+
+            qDebug()<<"delka zpravy je "<<QString::number(vstup.at(i))<<" "<<delkaDatRadku;
+            radek+=zavorky(vstup.at(i));
+            radekHex+=" ";
+            radekHex+=this->formatHex(this->hexDoplnNulu(vstup.at(i)));
+
+
+            indexZnakuRadku++;
+            break;
+        }
+        default:
+        {
+            if(indexZnakuRadku==(delkaDatRadku+1))
+            {
+                radek+=zavorky(vstup.at(i));
+                radekHex+=" ";
+                radekHex+=this->formatHex(this->hexDoplnNulu(vstup.at(i)));
+                radky.append(radek);
+                radkyHex.append(radekHex);
+                delkaDatRadku=0;
+                indexZnakuRadku=0;
+
+                qDebug()<<"konec prikazu, jsem na bytu "<<QString::number(vratCislo( vstup.at(i)),16)<<" "<<" XX"<<radekHex;
+                radek="";
+                radekHex="";
+            }
+            else
+            {
+                radek+=zavorky(vstup.at(i));
+                radekHex+=" ";
+                radekHex+=this->formatHex(this->hexDoplnNulu(vstup.at(i)));
+                indexZnakuRadku++;
+               // qDebug()<<"novy indexRadku "<<indexZnakuRadku<<" max:"<<delkaDatRadku;
+
+            }
+
+            break;
+        }
+
+        }
 
 
 
-
+        //qDebug()<<i<<" "<<vstup[i];
+    }
+    qDebug()<<"konec";
 
     QString htmlSoubor="";
     QString htmlRadky="";
@@ -111,12 +200,7 @@ void Soubor::vypis(QByteArray vstup)
         htmlRadky+=tabulkaRadek(tabulkaBunka(radky.at(g))+tabulkaBunka(radkyHex.at(g)));
         qDebug()<<radky.at(g)<<" "<<radkyHex.at(g);
     }
-/*
-    foreach(QString hodnota,radky)
-    {
-        qDebug()<<hodnota;
-    }
-*/
+
     htmlSoubor=this->wrapper(htmlRadky);
     zapisHtml(htmlSoubor);
     qDebug()<<htmlSoubor;
@@ -127,15 +211,17 @@ void Soubor::vypis(QByteArray vstup)
 QString Soubor::zavorky(char vstup)
 {
     QString vystup="";
-    if (vstup>=0x20)
+    int vstupCislo=vratCislo(vstup);
+    if (vstupCislo<0x20||vstupCislo>0x7F)
     {
-        vystup+=vstup;
-    }
-    else
-    {
+
         vystup+="<";
         vystup+=formatHex( hexDoplnNulu(vstup));
         vystup+=">";
+    }
+    else
+    {
+        vystup+=vstup;
     }
     return vystup;
 }
@@ -143,11 +229,21 @@ QString Soubor::zavorky(char vstup)
 
 QString Soubor::hexDoplnNulu(char vstup)
 {
-    QString vystup=QString::number(vstup,16);
-    if (vstup<0x10)
+
+
+    // vystup=vstup&0x0000000011111111;
+    short cislo=vratCislo(vstup);
+    QString vystup=QString::number(cislo,16);
+
+    if (cislo<0x10)
     {
         vystup="0"+vystup;
     }
+    /*
+    if(vystup.length()>2)
+    {
+        vystup=vystup.right(2);
+    }*/
     return vystup;
 
 }
@@ -173,23 +269,23 @@ QString Soubor::wrapper(QString vstup)
 void Soubor::zapisHtml(QString vstup)
 {
     QFile file(cestaSouboruHtml);
-          if(file.open(QIODevice::WriteOnly | QIODevice::Text))
-          {
-              // We're going to streaming text to the file
-              QTextStream stream(&file);
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        // We're going to streaming text to the file
+        QTextStream stream(&file);
 
-              stream << vstup;
-              file.close();
-              QString zapsano="Writing finished";
-              qDebug() << zapsano;
-              emit odesliChybovouHlasku(zapsano);
-          }
-          else
-          {
-              QString chybovaHlaska="soubor nelze zapsat";
-              qDebug()<<chybovaHlaska;
-              emit odesliChybovouHlasku(chybovaHlaska);
-          }
+        stream << vstup;
+        file.close();
+        QString zapsano="Writing finished";
+        qDebug() << zapsano;
+        emit odesliChybovouHlasku(zapsano);
+    }
+    else
+    {
+        QString chybovaHlaska="soubor nelze zapsat";
+        qDebug()<<chybovaHlaska;
+        emit odesliChybovouHlasku(chybovaHlaska);
+    }
 
 
 }
@@ -230,4 +326,10 @@ QString Soubor::formatHex(QString vstup)
     }
 
     return vystup;
+}
+
+short Soubor::vratCislo(char vstup)
+{
+    short vysledek=vstup&0xFF;
+    return vysledek;
 }

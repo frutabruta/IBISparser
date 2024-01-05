@@ -17,14 +17,15 @@
    <widget class="QPushButton" name="pushButton_process">
     <property name="geometry">
      <rect>
-      <x>140</x>
+      <x>80</x>
       <y>410</y>
       <width>80</width>
       <height>91</height>
      </rect>
     </property>
     <property name="text">
-     <string>zpracuj</string>
+     <string>zpracuj
+ IBIS</string>
     </property>
    </widget>
    <widget class="QWidget" name="verticalLayoutWidget">
@@ -33,7 +34,7 @@
       <x>120</x>
       <y>260</y>
       <width>461</width>
-      <height>94</height>
+      <height>96</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
@@ -87,7 +88,7 @@
       <x>320</x>
       <y>410</y>
       <width>160</width>
-      <height>91</height>
+      <height>92</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -103,6 +104,20 @@
      </item>
     </layout>
    </widget>
+   <widget class="QPushButton" name="pushButton_processRs485">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>410</y>
+      <width>75</width>
+      <height>81</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Zpracuj
+ RS485</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">
@@ -110,7 +125,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
   </widget>

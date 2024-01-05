@@ -28,6 +28,8 @@ private slots:
 
     void on_pushButton_outputFile_clicked();
 
+    void on_pushButton_processRs485_clicked();
+
 private:
     Ui::MainWindow *ui;
     Soubor soubor;

@@ -10,7 +10,7 @@ class Soubor : public QObject
 public:
     explicit Soubor(QObject *parent = nullptr);
 
-    void otevriSoubor();
+    QByteArray otevriSoubor();
 
     void vypis(QByteArray vstup);
     QString zavorky(char vstup);
@@ -25,6 +25,8 @@ public:
 
     QString cestaSouboruHex="vstup.hex";
     QString cestaSouboruHtml="vystup.html";
+    void zpracujRs485(QByteArray vstup);
+    short vratCislo(char vstup);
 signals:
      void odesliChybovouHlasku(QString chybovaHlaska);
 

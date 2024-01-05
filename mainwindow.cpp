@@ -26,9 +26,17 @@ void MainWindow::on_pushButton_process_clicked()
 {
     soubor.cestaSouboruHex=ui->lineEdit_cestaSouboru->text();
     soubor.cestaSouboruHtml=ui->lineEdit_cestaHTML->text();
-soubor.otevriSoubor();
 
+    soubor.vypis(soubor.otevriSoubor());
 }
+
+void MainWindow::on_pushButton_processRs485_clicked()
+{
+    soubor.cestaSouboruHex=ui->lineEdit_cestaSouboru->text();
+    soubor.cestaSouboruHtml=ui->lineEdit_cestaHTML->text();
+    soubor.zpracujRs485(soubor.otevriSoubor());
+}
+
 
 
 QString MainWindow::saveToFile()
@@ -67,4 +75,6 @@ void MainWindow::pridejChybuDoOkna(QString vstup)
 {
 ui->errorlog->appendPlainText(vstup);
 }
+
+
 
